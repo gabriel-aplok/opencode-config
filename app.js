@@ -100,6 +100,30 @@ function escapeHtml(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
+/* Plain JSON highlighter. No dependencies. Escapes first, then wraps tokens. */
+const JSON_TOKEN =
+  /("(?:\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*")(\s*:)?|\b(true|false|null)\b|-?\d+(\.\d+)?([eE][+-]?\d+)?/g;
+
+function highlightJsonLine(line) {
+  if (/^\s*\/\//.test(line)) return `<span class="tok-comment">${escapeHtml(line)}</span>`;
+  let out = "";
+  let last = 0;
+  JSON_TOKEN.lastIndex = 0;
+  let m;
+  while ((m = JSON_TOKEN.exec(line)) !== null) {
+    out += escapeHtml(line.slice(last, m.index));
+    if (m[1]) out += `<span class="${m[2] ? "tok-key" : "tok-string"}">${escapeHtml(m[0])}</span>`;
+    else if (m[3]) out += `<span class="tok-bool">${escapeHtml(m[0])}</span>`;
+    else out += `<span class="tok-number">${escapeHtml(m[0])}</span>`;
+    last = m.index + m[0].length;
+  }
+  return out + escapeHtml(line.slice(last));
+}
+
+function highlightJson(text) {
+  return String(text).split("\n").map(highlightJsonLine).join("\n");
+}
+
 function sanitizeId(s, fallback) {
   const v = String(s || "")
     .trim()
@@ -171,12 +195,12 @@ function generate() {
   const figure = document.getElementById("outputFigure");
   const title = document.getElementById("outputTitle");
   if (!selected.length) {
-    $("output").textContent = "// Select at least one model to generate the config.";
+    $("output").innerHTML = highlightJson("// Select at least one model to generate the config.");
     figure.hidden = true;
   } else {
     const label = selected.length === 1 ? "1 model" : `${selected.length} models`;
     const header = `// Config for OpenCode V2. Provider ${providerId}. Models: ${label}.\n// Docs: ${DOCS_URL}\n`;
-    $("output").textContent = header + JSON.stringify(config, null, 2);
+    $("output").innerHTML = highlightJson(header + JSON.stringify(config, null, 2));
     title.textContent = `opencode.jsonc / ${providerId} / ${label}`;
     figure.hidden = false;
   }
@@ -252,6 +276,35 @@ $("parseBtn").addEventListener("click", () => {
     setStatus($("fetchStatus"), `Parse error: ${e.message}`, false);
   }
 });
+
+/* Live highlight for the manual paste box. A highlighted copy sits
+   behind a transparent textarea, and the two scroll together. */
+function syncManualHighlight() {
+  const box = $("manualJson");
+  $("manualHighlight").innerHTML = highlightJson(box.value + "\n");
+  const editor = $("manualEditor");
+  const pane = editor.querySelector("pre");
+  pane.scrollTop = box.scrollTop;
+  pane.scrollLeft = box.scrollLeft;
+  if (!box.value.trim()) {
+    editor.classList.remove("invalid");
+    return;
+  }
+  try {
+    JSON.parse(box.value);
+    editor.classList.remove("invalid");
+  } catch {
+    editor.classList.add("invalid");
+  }
+}
+
+$("manualJson").addEventListener("input", syncManualHighlight);
+$("manualJson").addEventListener("scroll", () => {
+  const pane = $("manualEditor").querySelector("pre");
+  pane.scrollTop = $("manualJson").scrollTop;
+  pane.scrollLeft = $("manualJson").scrollLeft;
+});
+syncManualHighlight();
 $("selectAll").addEventListener("click", () => {
   models.forEach((m) => (m.include = true));
   renderModels();

@@ -13,6 +13,10 @@
   --font-mono:
     "OpenTUI Mono", "Berkeley Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     "Liberation Mono", "Courier New", monospace;
+  --tok-key: #79b8ff;
+  --tok-string: #9ecbff;
+  --tok-number: #e8c07d;
+  --tok-bool: #ff9cac;
   color-scheme: dark;
 }
 
@@ -352,6 +356,76 @@ pre {
 .output-figure pre {
   border: 0;
   margin: 0;
+}
+
+/* JSON tokens */
+.tok-key {
+  color: var(--tok-key);
+}
+.tok-string {
+  color: var(--tok-string);
+}
+.tok-number {
+  color: var(--tok-number);
+}
+.tok-bool {
+  color: var(--tok-bool);
+}
+.tok-comment {
+  color: var(--muted);
+}
+
+/* JSON editor: highlighted pre behind a transparent textarea */
+.json-editor {
+  position: relative;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  margin-bottom: 0.75rem;
+}
+.json-editor.invalid {
+  border-color: var(--tok-bool);
+}
+.json-editor pre,
+.json-editor textarea {
+  font: inherit;
+  font-size: 0.8125rem;
+  line-height: 1.7em;
+  padding: 0.75rem;
+  margin: 0;
+  border: 0;
+  min-height: 8rem;
+  white-space: pre;
+  overflow: auto;
+  tab-size: 2;
+}
+.json-editor pre {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: transparent;
+}
+.json-editor textarea {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 8rem;
+  resize: vertical;
+  background: transparent;
+  color: transparent;
+  caret-color: var(--foreground);
+}
+.json-editor textarea::selection {
+  background: var(--border);
+}
+.json-editor textarea:hover {
+  background: transparent;
+}
+.json-editor textarea:focus {
+  outline: none;
+  background: transparent;
+}
+.json-editor:focus-within {
+  border-color: var(--link);
 }
 
 footer {
