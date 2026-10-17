@@ -384,6 +384,153 @@ $("downloadBtn").addEventListener("click", () => {
   URL.revokeObjectURL(a.href);
 });
 
+/* Profiles: save every input plus the model list to a file, and load it back.
+   The API key leaves the page only inside an encrypted block. */
+const PROFILE_TEXT_KEYS = [
+  "providerId",
+  "providerName",
+  "baseURL",
+  "envVar",
+  "package",
+  "authScheme",
+  "reasoningField",
+  "cacheFormat",
+  "defContext",
+  "defOutput",
+  "profileName",
+];
+
+function collectProfileInputs() {
+  const inputs = {};
+  for (const id of PROFILE_TEXT_KEYS) inputs[id] = $(id).value;
+  inputs.keyPlacement = $("keyPlacement").checked;
+  inputs.defTools = $("defTools").checked;
+  return inputs;
+}
+
+function applyProfileInputs(inputs) {
+  for (const id of PROFILE_TEXT_KEYS) {
+    if (typeof inputs[id] === "string") $(id).value = inputs[id];
+  }
+  if (typeof inputs.keyPlacement === "boolean") $("keyPlacement").checked = inputs.keyPlacement;
+  if (typeof inputs.defTools === "boolean") $("defTools").checked = inputs.defTools;
+}
+
+function sanitizeFileName(name) {
+  return String(name || "profile")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-zA-Z0-9._-]/g, "")
+    .slice(0, 64);
+}
+
+/* Password prompt. Mode "new" asks twice and needs 8 characters.
+   Mode "unlock" asks once. Resolves the password, or null on cancel. */
+function askPassword(mode) {
+  const dialog = $("passwordDialog");
+  const input = $("passwordInput");
+  const confirm = $("passwordConfirm");
+  const error = $("passwordError");
+  $("passwordTitle").textContent = mode === "new" ? "Protect the API key" : "Unlock the API key";
+  $("passwordHint").textContent =
+    mode === "new"
+      ? "Set a password. It encrypts the API key inside the file."
+      : "This file holds an encrypted API key. Type the password to decrypt it.";
+  $("passwordConfirmWrap").style.display = mode === "new" ? "" : "none";
+  input.value = "";
+  confirm.value = "";
+  error.hidden = true;
+  if (typeof dialog.showModal === "function") dialog.showModal();
+  else dialog.setAttribute("open", "");
+  input.focus();
+
+  return new Promise((resolve) => {
+    const done = (value) => {
+      dialog.close();
+      $("passwordOk").removeEventListener("click", onOk);
+      $("passwordCancel").removeEventListener("click", onCancel);
+      dialog.removeEventListener("close", onClose);
+      resolve(value);
+    };
+    const onOk = () => {
+      if (mode === "new") {
+        if (input.value.length < 8) {
+          error.textContent = "Use at least 8 characters.";
+          error.hidden = false;
+          return;
+        }
+        if (input.value !== confirm.value) {
+          error.textContent = "The two passwords differ.";
+          error.hidden = false;
+          return;
+        }
+      }
+      if (!input.value) {
+        error.textContent = "Type a password.";
+        error.hidden = false;
+        return;
+      }
+      done(input.value);
+    };
+    const onCancel = () => done(null);
+    const onClose = () => done(null);
+    $("passwordOk").addEventListener("click", onOk);
+    $("passwordCancel").addEventListener("click", onCancel);
+    dialog.addEventListener("close", onClose);
+  });
+}
+
+$("profileSaveBtn").addEventListener("click", async () => {
+  const status = $("profileStatus");
+  try {
+    const inputs = collectProfileInputs();
+    const key = $("apiKey").value;
+    let secret = null;
+    if (key) {
+      setStatus(status, "Encrypting the key.");
+      const password = await askPassword("new");
+      if (!password) return setStatus(status, "Save cancelled.");
+      secret = await OpencodeProfile.encryptProfileSecret(password, key);
+    }
+    const name = sanitizeFileName(inputs.profileName) || "profile";
+    const doc = OpencodeProfile.buildProfileDocument({ name, inputs, models, secret });
+    const blob = new Blob([JSON.stringify(doc, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `${name}.opencode-profile.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    setStatus(status, `Saved ${name}.opencode-profile.json.`);
+  } catch (e) {
+    setStatus(status, `Save failed: ${e.message}`, false);
+  }
+});
+
+$("profileLoadBtn").addEventListener("click", () => $("profileFile").click());
+
+$("profileFile").addEventListener("change", async () => {
+  const status = $("profileStatus");
+  const file = $("profileFile").files[0];
+  $("profileFile").value = "";
+  if (!file) return;
+  try {
+    const profile = OpencodeProfile.parseProfileDocument(await file.text());
+    if (profile.secret) {
+      setStatus(status, "Decrypting the key.");
+      const password = await askPassword("unlock");
+      if (!password) return setStatus(status, "Load cancelled.");
+      $("apiKey").value = await OpencodeProfile.decryptProfileSecret(password, profile.secret);
+    }
+    applyProfileInputs(profile.inputs);
+    models = Array.isArray(profile.models) ? profile.models : [];
+    renderModels();
+    generate();
+    setStatus(status, `Loaded ${profile.name}.`);
+  } catch (e) {
+    setStatus(status, `Load failed: ${e.message}`, false);
+  }
+});
+
 /* Security dialog: shown at start until the user hides it. */
 const SECURITY_KEY = "opencode-config.security.hidden";
 const securityDialog = $("securityDialog");

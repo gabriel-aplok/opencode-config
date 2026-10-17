@@ -289,6 +289,28 @@
       </section>
 
       <section class="panel">
+        <div class="panel-title">Profiles</div>
+        <div class="panel-body">
+          <p class="hint">
+            Save every input and the model list to a file. Load it back later. A password encrypts the API key
+            inside the file. Without a key in the form, no password is needed.
+          </p>
+          <div class="grid">
+            <label>
+              Profile name
+              <input id="profileName" value="profile" spellcheck="false" />
+            </label>
+          </div>
+          <div class="row">
+            <button id="profileSaveBtn">Save profile</button>
+            <button id="profileLoadBtn">Load profile</button>
+            <input type="file" id="profileFile" accept="application/json,.json" hidden />
+            <span id="profileStatus" class="status" aria-live="polite"></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
         <div class="panel-title">Generated opencode.jsonc</div>
         <div class="panel-body">
           <div class="row">
@@ -346,6 +368,26 @@
         <button id="securityClose" type="button">I understand</button>
       </div>
     </dialog>
+    <dialog id="passwordDialog" aria-labelledby="passwordTitle">
+      <div class="panel-title" id="passwordTitle">Protect the API key</div>
+      <div class="dialog-body">
+        <p class="hint" id="passwordHint">Set a password. It encrypts the API key inside the file.</p>
+        <label>
+          Password
+          <input id="passwordInput" type="password" autocomplete="new-password" />
+        </label>
+        <label id="passwordConfirmWrap">
+          Confirm password
+          <input id="passwordConfirm" type="password" autocomplete="new-password" />
+        </label>
+        <p class="status err" id="passwordError" hidden></p>
+      </div>
+      <div class="dialog-actions">
+        <button id="passwordCancel" type="button">Cancel</button>
+        <button id="passwordOk" type="button">Confirm</button>
+      </div>
+    </dialog>
+    <script src="profile.js" data-cfasync="false"></script>
     <script src="app.js" data-cfasync="false"></script>
   </body>
 </html>

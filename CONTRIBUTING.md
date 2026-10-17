@@ -33,11 +33,12 @@ The opencode.ai dark theme tokens in styles.css are the single source of truth f
 
 ## Test before a pull request
 
-1. Run `node --check app.js`.
-2. Run `npm run format:check`.
-3. Open the page in the browser.
-4. Load models from a test endpoint.
-5. Check that the generated JSON parses.
+1. Run `node --check app.js` and `node --check profile.js`.
+2. Run `npm test`.
+3. Run `npm run format:check`.
+4. Open the page in the browser.
+5. Load models from a test endpoint.
+6. Check that the generated JSON parses.
 
 ## Commit messages
 

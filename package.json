@@ -8,7 +8,8 @@
   "scripts": {
     "serve": "python3 -m http.server 8000 -d .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "test": "node --test profile.test.js"
   },
   "devDependencies": {
     "prettier": "^3.9.10"
