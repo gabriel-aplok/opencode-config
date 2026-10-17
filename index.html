@@ -243,10 +243,13 @@
             <button id="fetchBtn">Load models</button>
             <span id="fetchStatus" class="status" aria-live="polite"></span>
           </div>
-          <details>
+          <details id="manualFallback">
             <summary>Load blocked by CORS. Paste the models JSON manually.</summary>
             <textarea id="manualJson" rows="5" placeholder='{"data":[{"id":"model-id"}]}'></textarea>
-            <button id="parseBtn">Parse pasted JSON</button>
+            <div class="row">
+              <button id="parseBtn">Parse pasted JSON</button>
+              <button id="curlBtn" type="button">Copy curl command</button>
+            </div>
             <p class="hint">Example: curl -H "Authorization: Bearer KEY" https://your-host/v1/models</p>
           </details>
         </div>

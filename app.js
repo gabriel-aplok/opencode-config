@@ -207,9 +207,40 @@ async function fetchModels() {
     const label = models.length === 1 ? "1 model" : `${models.length} models`;
     setStatus($("fetchStatus"), `Loaded ${label}.`);
   } catch (e) {
-    setStatus($("fetchStatus"), `Load failed: ${e.message}. Paste JSON manually below.`, false);
+    if (e instanceof TypeError) {
+      setStatus(
+        $("fetchStatus"),
+        "Load blocked. The browser stopped the request. This is CORS, an ad blocker, or a down server. The manual paste box is open below.",
+        false,
+      );
+    } else {
+      setStatus($("fetchStatus"), `Load failed: ${e.message}. Paste JSON manually below.`, false);
+    }
+    const fallback = $("manualFallback");
+    fallback.open = true;
+    fallback.scrollIntoView({ block: "nearest" });
   }
 }
+
+function buildCurl() {
+  const base = normBase($("baseURL").value) || "https://your-host/v1";
+  const key = $("apiKey").value.trim();
+  const scheme = $("authScheme").value;
+  const parts = ["curl"];
+  if (key && scheme === "bearer") parts.push(`-H "Authorization: Bearer ${key}"`);
+  if (key && scheme === "x-api-key") parts.push(`-H "x-api-key: ${key}"`);
+  parts.push(`${base}/models`);
+  return parts.join(" ");
+}
+
+$("curlBtn").addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(buildCurl());
+    setStatus($("fetchStatus"), "Curl command copied. Run it in a terminal, then paste the output above.");
+  } catch (e) {
+    setStatus($("fetchStatus"), `Copy failed: ${e.message}.`, false);
+  }
+});
 
 $("fetchBtn").addEventListener("click", fetchModels);
 $("parseBtn").addEventListener("click", () => {
