@@ -257,9 +257,35 @@ function buildCurl() {
   return parts.join(" ");
 }
 
+/* Copy text. Tries the Clipboard API first, then falls back to a
+   temporary textarea, which works where the API is blocked. */
+async function copyText(text) {
+  if (navigator.clipboard) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return;
+    } catch {
+      /* fall through to the legacy path */
+    }
+  }
+  const box = document.createElement("textarea");
+  box.value = text;
+  box.setAttribute("readonly", "");
+  box.style.position = "fixed";
+  box.style.opacity = "0";
+  document.body.appendChild(box);
+  box.select();
+  box.setSelectionRange(0, box.value.length);
+  try {
+    if (!document.execCommand("copy")) throw new Error("copy command failed");
+  } finally {
+    box.remove();
+  }
+}
+
 $("curlBtn").addEventListener("click", async () => {
   try {
-    await navigator.clipboard.writeText(buildCurl());
+    await copyText(buildCurl());
     setStatus($("fetchStatus"), "Curl command copied. Run it in a terminal, then paste the output above.");
   } catch (e) {
     setStatus($("fetchStatus"), `Copy failed: ${e.message}.`, false);
@@ -343,7 +369,7 @@ $("selectNone").addEventListener("click", () => {
 });
 $("copyBtn").addEventListener("click", async () => {
   try {
-    await navigator.clipboard.writeText($("output").textContent);
+    await copyText($("output").textContent);
     setStatus($("genStatus"), "Copied.");
   } catch (e) {
     setStatus($("genStatus"), `Copy failed: ${e.message}. Select the text manually.`, false);
