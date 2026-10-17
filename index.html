@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenCode Config Generator for OpenAI compatible endpoints</title>
+
+    <!-- Primary -->
+    <meta
+      name="description"
+      content="Generate an OpenCode V2 opencode.jsonc for any OpenAI compatible endpoint. Load the /models list, pick models, copy the config. Runs in the browser."
+    />
+    <meta
+      name="keywords"
+      content="opencode, opencode config, opencode.jsonc, openai compatible, models endpoint, provider config, llm config generator, custom provider"
+    />
+    <meta name="author" content="Gabriel Lima (@gabriel-aplok)" />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+    <meta name="googlebot" content="index, follow" />
+    <link rel="canonical" href="https://trenbankai.dev/opencode-config/" />
+    <link rel="sitemap" type="application/xml" href="https://trenbankai.dev/opencode-config/sitemap.xml" />
+
+    <!-- Appearance -->
+    <meta name="theme-color" content="#090909" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="application-name" content="opencode config generator" />
+    <meta name="apple-mobile-web-app-title" content="opencode gen" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- Icons -->
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="icon-192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" sizes="180x180" />
+    <link rel="manifest" href="site.webmanifest" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="opencode config generator" />
+    <meta property="og:url" content="https://trenbankai.dev/opencode-config/" />
+    <meta property="og:title" content="OpenCode Config Generator for OpenAI compatible endpoints" />
+    <meta
+      property="og:description"
+      content="Load the /models list from any OpenAI compatible endpoint and get a ready OpenCode V2 opencode.jsonc. Your key stays in the browser."
+    />
+    <meta property="og:image" content="https://trenbankai.dev/opencode-config/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Dark terminal panel titled opencode config generator, with the command npm run serve and three steps."
+    />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="pt_BR" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="OpenCode Config Generator for OpenAI compatible endpoints" />
+    <meta
+      name="twitter:description"
+      content="Load the /models list from any OpenAI compatible endpoint and get a ready OpenCode V2 opencode.jsonc. Your key stays in the browser."
+    />
+    <meta name="twitter:image" content="https://trenbankai.dev/opencode-config/og-image.png" />
+    <meta
+      name="twitter:image:alt"
+      content="Dark terminal panel titled opencode config generator, with the command npm run serve and three steps."
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "@id": "https://trenbankai.dev/opencode-config/#app",
+            "name": "opencode config generator",
+            "url": "https://trenbankai.dev/opencode-config/",
+            "description": "Generate an OpenCode V2 opencode.jsonc for any OpenAI compatible endpoint. Load the /models list, pick models, copy the config.",
+            "applicationCategory": "DeveloperApplication",
+            "applicationSubCategory": "Configuration tool",
+            "operatingSystem": "Any operating system",
+            "browserRequirements": "Requires JavaScript",
+            "programmingLanguage": ["HTML", "CSS", "JavaScript"],
+            "isAccessibleForFree": true,
+            "inLanguage": "en",
+            "image": "https://trenbankai.dev/opencode-config/og-image.png",
+            "codeRepository": "https://github.com/gabriel-aplok/opencode-config",
+            "license": "https://opensource.org/license/mit",
+            "features": [
+              "Load the model list from an OpenAI compatible endpoint",
+              "Select the models to include",
+              "Set context and output limits",
+              "Generate an opencode.jsonc file",
+              "Reference the API key through an environment variable"
+            ],
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "author": { "@id": "https://trenbankai.dev/#author" }
+          },
+          {
+            "@type": "Person",
+            "@id": "https://trenbankai.dev/#author",
+            "name": "Gabriel Lima",
+            "alternateName": "gabriel-aplok",
+            "url": "https://github.com/gabriel-aplok"
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://trenbankai.dev/#website",
+            "url": "https://trenbankai.dev/",
+            "name": "trenbankai.dev",
+            "inLanguage": "en",
+            "publisher": { "@id": "https://trenbankai.dev/#author" }
+          },
+          {
+            "@type": "BreadcrumbList",
+            "@id": "https://trenbankai.dev/opencode-config/#breadcrumb",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://trenbankai.dev/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "OpenCode config generator",
+                "item": "https://trenbankai.dev/opencode-config/"
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <header class="site-header">
+      <h1>opencode config generator</h1>
+      <p>OpenAI compatible endpoint. Load models. Get config.</p>
+    </header>
+    <main>
+      <noscript>
+        <p class="hint">
+          This page needs JavaScript. It calls the model list and builds the config in the browser.
+        </p>
+      </noscript>
+      <section class="panel">
+        <div class="panel-title">Provider endpoint</div>
+        <div class="panel-body">
+          <div class="grid">
+            <label>
+              Provider ID. Use it as provider/model.
+              <input id="providerId" value="custom" spellcheck="false" />
+            </label>
+            <label>
+              Display name
+              <input id="providerName" value="Custom" spellcheck="false" />
+            </label>
+            <label>
+              Base URL
+              <input id="baseURL" value="http://127.0.0.1:1234/v1" spellcheck="false" />
+            </label>
+            <label>
+              API key. Used only to load models. Never saved.
+              <input
+                id="apiKey"
+                type="password"
+                placeholder="sk-... (optional)"
+                autocomplete="off"
+                spellcheck="false"
+              />
+            </label>
+            <label>
+              Environment variable for API key
+              <input id="envVar" value="CUSTOM_API_KEY" spellcheck="false" />
+            </label>
+            <label>
+              Runtime package
+              <select id="package">
+                <option value="@opencode/ai/providers/openai-compatible" selected>
+                  @opencode/ai/providers/openai-compatible
+                </option>
+                <option value="@opencode/ai/providers/openai-compatible/responses">
+                  @opencode/ai/providers/openai-compatible/responses
+                </option>
+              </select>
+            </label>
+          </div>
+          <div class="grid">
+            <label>
+              Auth header
+              <select id="authScheme">
+                <option value="bearer" selected>Authorization: Bearer key</option>
+                <option value="x-api-key">x-api-key: key</option>
+                <option value="none">None (no key)</option>
+              </select>
+            </label>
+            <div class="field">
+              <span class="field-label">API key in config</span>
+              <label class="switch">
+                <input id="keyPlacement" type="checkbox" checked />
+                <span class="track" aria-hidden="true"></span>
+                <span id="switchText" class="switch-text">Use environment variable</span>
+              </label>
+            </div>
+            <label>
+              Reasoning field
+              <select id="reasoningField">
+                <option value="" selected>Default (auto)</option>
+                <option value="reasoning_content">reasoning_content</option>
+                <option value="reasoning_text">reasoning_text</option>
+                <option value="reasoning">reasoning</option>
+              </select>
+            </label>
+            <label>
+              Prompt cache format
+              <select id="cacheFormat">
+                <option value="" selected>None</option>
+                <option value="anthropic">anthropic (Claude through LiteLLM style proxy)</option>
+                <option value="alibaba">alibaba (Model Studio)</option>
+              </select>
+            </label>
+          </div>
+          <div class="row">
+            <button id="fetchBtn">Load models</button>
+            <span id="fetchStatus" class="status" aria-live="polite"></span>
+          </div>
+          <details>
+            <summary>Load blocked by CORS. Paste the models JSON manually.</summary>
+            <textarea id="manualJson" rows="5" placeholder='{"data":[{"id":"model-id"}]}'></textarea>
+            <button id="parseBtn">Parse pasted JSON</button>
+            <p class="hint">Example: curl -H "Authorization: Bearer KEY" https://your-host/v1/models</p>
+          </details>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title">Models</div>
+        <div class="panel-body">
+          <div class="row">
+            <label class="inline">
+              Default context
+              <input id="defContext" type="number" value="131072" min="1024" />
+            </label>
+            <label class="inline">
+              Default output
+              <input id="defOutput" type="number" value="8192" min="256" />
+            </label>
+            <label class="inline">
+              <input id="defTools" type="checkbox" checked />
+              Enable tools
+            </label>
+            <button id="selectAll">Select all</button>
+            <button id="selectNone">Clear</button>
+          </div>
+          <div id="modelList" class="model-list">
+            <p class="hint">No models loaded. Load models or paste JSON above.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title">Generated opencode.jsonc</div>
+        <div class="panel-body">
+          <div class="row">
+            <button id="copyBtn">Copy config</button>
+            <button id="downloadBtn">Download opencode.jsonc</button>
+            <span id="genStatus" class="status" aria-live="polite"></span>
+          </div>
+          <figure class="output-figure" id="outputFigure" hidden>
+            <figcaption id="outputTitle" class="output-title">opencode.jsonc</figcaption>
+            <pre id="output">// Select at least one model to generate the config.</pre>
+          </figure>
+          <div class="sub-title">Shell export</div>
+          <pre id="envOutput"># Set the key referenced as env VAR in the config.</pre>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <div class="footer-inner">
+        <p>
+          This page runs in the browser. The key is sent only to the model list request. Schema:
+          https://opencode.ai/config.json (OpenCode V2).
+        </p>
+        <p class="credits">
+          Built by
+          <a href="https://github.com/gabriel-aplok" rel="noopener">Gabriel</a>
+          . Config format follows the
+          <a href="https://opencode.ai/v2/docs/providers#custom" rel="noopener">OpenCode V2 docs</a>
+          . Not affiliated with OpenCode.
+          <button id="securityLink" type="button" class="link-button">Security note</button>
+        </p>
+      </div>
+    </footer>
+    <div class="status-bar" role="status">
+      <span id="statusInfo" class="status-info">custom / 0 models</span>
+      <span class="status-hints">
+        <span>Enter: load models</span>
+        <span>Esc: close dialog</span>
+      </span>
+    </div>
+    <dialog id="securityDialog" aria-labelledby="securityTitle">
+      <div class="panel-title" id="securityTitle">Security note</div>
+      <ul class="dialog-list">
+        <li>This page is static. It sends requests only to the base URL you type.</li>
+        <li>The API key stays in this browser tab. It is used for the model list request only.</li>
+        <li>The key is never saved, never logged, and never sent anywhere else.</li>
+        <li>Close the tab when you finish on a shared computer.</li>
+        <li>The generated config uses an environment variable for the key. Keep it that way.</li>
+        <li>Made for personal use. Anyone can use it too.</li>
+      </ul>
+      <label class="inline dialog-check">
+        <input id="securityDismiss" type="checkbox" />
+        Do not show this again
+      </label>
+      <div class="dialog-actions">
+        <button id="securityClose" type="button">I understand</button>
+      </div>
+    </dialog>
+    <script src="app.js"></script>
+  </body>
+</html>

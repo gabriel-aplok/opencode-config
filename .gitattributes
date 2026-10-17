@@ -1,0 +1,12 @@
+# normalize text to LF on commit
+* text=auto eol=lf
+
+# binary types
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.ico binary

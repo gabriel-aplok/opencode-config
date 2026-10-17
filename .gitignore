@@ -1,0 +1,22 @@
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# editor folders and swap files
+.vscode/
+.idea/
+*.swp
+*~
+
+# local test files that must never be committed
+opencode.json
+opencode.jsonc
+.env
+*.local
+secrets
+
+# logs and temp
+*.log
+node_modules/
+.cache/

@@ -1,0 +1,10 @@
+# standard license text, do not reflow
+LICENSE
+
+# generated and local files
+node_modules/
+package-lock.json
+*.log
+opencode.json
+opencode.jsonc
+.env

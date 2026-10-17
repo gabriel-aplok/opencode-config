@@ -1,0 +1,16 @@
+{
+  "name": "opencode-config",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static web page that builds an OpenCode V2 config for any OpenAI compatible endpoint.",
+  "license": "MIT",
+  "author": "Gabriel Lima (@gabriel-aplok)",
+  "scripts": {
+    "serve": "python3 -m http.server 8000 -d .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "^3.9.10"
+  }
+}
