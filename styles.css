@@ -6,7 +6,9 @@
   --border: #303030;
   --surface: #101010;
   --surface-hover: #181818;
+  --surface-focus: #1b1b1b;
   --link: #4d8eff;
+  --danger: #ff9cac;
   --header-height: 3.875rem;
   --content-width: 60rem;
   --gutter: 1.5rem;
@@ -183,7 +185,7 @@ select:focus,
 textarea:focus {
   outline: none;
   border-color: var(--link);
-  background: #1b1b1b;
+  background: var(--surface-focus);
   color: var(--foreground);
 }
 
@@ -237,7 +239,7 @@ button:focus-visible {
   color: var(--foreground);
 }
 .status.err {
-  color: var(--link);
+  color: var(--danger);
   font-weight: 700;
 }
 
@@ -401,7 +403,7 @@ pre {
   margin-bottom: 0.75rem;
 }
 .json-editor.invalid {
-  border-color: var(--tok-bool);
+  border-color: var(--danger);
 }
 .json-editor pre,
 .json-editor textarea {
