@@ -94,6 +94,10 @@ main {
   display: grid;
   gap: 1.5rem;
 }
+/* Sections are grid items. Let them shrink below content width so pre blocks scroll inside. */
+main > section {
+  min-width: 0;
+}
 
 /* Panel: TUI frame with a title bar */
 .panel {
@@ -140,6 +144,9 @@ main {
   gap: 1rem 1.25rem;
   margin-bottom: 1.25rem;
 }
+.grid > * {
+  min-width: 0;
+}
 
 label {
   display: grid;
@@ -162,6 +169,7 @@ textarea {
   border-radius: 0;
   padding: 0.375rem 0.5rem;
   min-height: 2rem;
+  min-width: 0;
   width: 100%;
 }
 input:hover,
@@ -222,6 +230,8 @@ button:focus-visible {
 .status {
   font-size: 0.75rem;
   color: var(--muted);
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 .status.ok {
   color: var(--foreground);
@@ -235,6 +245,8 @@ button:focus-visible {
   font-size: 0.75rem;
   color: var(--muted);
   margin: 0 0 0.75rem;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 details {
@@ -246,6 +258,7 @@ summary {
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.02em;
+  overflow-wrap: anywhere;
 }
 summary:hover {
   color: var(--foreground);
@@ -298,6 +311,8 @@ details textarea {
 .api-id {
   font-size: 0.75rem;
   color: var(--muted);
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 .api-id::before {
   content: "› ";
@@ -317,6 +332,7 @@ details textarea {
   gap: 0.375rem;
   align-items: center;
   white-space: nowrap;
+  max-width: 100%;
 }
 .inline input {
   width: 6rem;
@@ -352,6 +368,8 @@ pre {
   color: var(--muted);
   padding: 0.375rem 0.75rem;
   font-size: 0.75rem;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 .output-figure pre {
   border: 0;
@@ -442,6 +460,8 @@ footer {
 }
 footer p {
   margin: 0;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 footer .credits {
   color: var(--muted);
@@ -578,7 +598,8 @@ input[type="checkbox"]:checked::before {
 .switch {
   display: inline-flex;
   align-items: center;
-  gap: 0.625rem;
+  flex-wrap: wrap;
+  gap: 0.375rem 0.625rem;
   min-height: 2rem;
   font-size: 0.75rem;
   font-weight: 700;
@@ -640,6 +661,8 @@ input[type="checkbox"]:checked::before {
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.02em;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 /* Dialog: flat panel, bordered, no rounding */
@@ -693,18 +716,21 @@ dialog .panel-title::before {
 }
 .dialog-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.625rem;
   justify-content: flex-end;
   padding: 0.75rem 1rem 1rem;
   border-top: 1px solid var(--border);
 }
 
-@media (max-width: 40rem) {
+/* Tablets and phones */
+@media (max-width: 48rem) {
   :root {
     --gutter: 1rem;
   }
   main {
     padding-block: 1rem 2rem;
+    gap: 1.25rem;
   }
   .site-header {
     flex-direction: column;
@@ -715,19 +741,85 @@ dialog .panel-title::before {
   .site-header h1 {
     font-size: 0.875rem;
   }
+  .panel-body {
+    padding: 1rem 0.75rem 0.75rem;
+  }
+
   .model-row {
     flex-direction: column;
+    align-items: flex-start;
   }
   .model-row > input[type="checkbox"] {
     margin-top: 0.25rem;
   }
-  .nums {
-    gap: 0.75rem;
+  .nums label {
+    min-width: 0;
+    flex: 1;
+  }
+  .inline {
+    white-space: normal;
   }
   .inline input {
     width: 5rem;
   }
+  .json-editor textarea,
+  .json-editor pre {
+    min-height: 10rem;
+  }
+  .status-info {
+    max-width: 70%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   .status-hints {
     display: none;
+  }
+}
+
+/* Small phones */
+@media (max-width: 32rem) {
+  :root {
+    --gutter: 0.75rem;
+  }
+  body {
+    font-size: 0.8125rem;
+    padding-bottom: 2.75rem;
+  }
+  .site-header h1 {
+    font-size: 0.8125rem;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .panel-body {
+    padding: 0.875rem 0.625rem 0.625rem;
+  }
+  .row > button {
+    flex: 1 1 auto;
+  }
+  button,
+  input,
+  select,
+  textarea {
+    min-height: 2.25rem;
+  }
+  .inline input {
+    width: 4.5rem;
+  }
+  .nums {
+    width: 100%;
+  }
+  .nums label {
+    flex: 1 1 auto;
+  }
+  .status-bar {
+    height: 2.5rem;
+    padding-inline: var(--gutter);
+  }
+  .output-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
