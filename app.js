@@ -24,7 +24,7 @@ function setStatus(el, msg, ok = true) {
 
 function parseModelsPayload(payload) {
   const arr = Array.isArray(payload) ? payload : payload.data || payload.models || [];
-  if (!Array.isArray(arr)) throw new Error("Unrecognized shape. Use {data:[{id}]}.");
+  if (!Array.isArray(arr)) throw new Error("Did not recognize that shape. The page expects {data:[{id}]}.");
   return arr.map((m) => {
     if (typeof m === "string") return { id: m };
     return { id: m.id || m.name || m.modelID || JSON.stringify(m), raw: m };
@@ -47,13 +47,17 @@ function ingest(entries) {
       raw?.maxModelLen ||
       raw?.context_window ||
       defC;
+    const caps = raw?.capabilities || {};
     return {
       apiId: String(id),
       alias: String(id),
       displayName: raw?.display_name || raw?.displayName || String(id),
       context: readNumber(ctx, defC),
       output: readNumber(raw?.max_output_tokens || raw?.maxOutputTokens, defO),
-      tools: typeof raw?.tools === "boolean" ? raw.tools : defT,
+      tools:
+        typeof raw?.tools === "boolean" ? raw.tools : typeof caps.tools === "boolean" ? caps.tools : defT,
+      vision: typeof caps.vision === "boolean" ? caps.vision : Boolean(raw?.vision),
+      reasoning: typeof caps.reasoning === "boolean" ? caps.reasoning : Boolean(raw?.reasoning),
       include: true,
     };
   });
@@ -65,7 +69,7 @@ function renderModels() {
   const list = $("modelList");
   list.innerHTML = "";
   if (!models.length) {
-    list.innerHTML = '<p class="hint">No models loaded. Load models or paste JSON above.</p>';
+    list.innerHTML = '<p class="hint">Nothing here yet. Load the models, or paste the JSON above.</p>';
     return;
   }
   models.forEach((m, i) => {
@@ -81,6 +85,8 @@ function renderModels() {
           <label>Context limit<input type="number" data-k="context" value="${m.context}" min="${MIN_CONTEXT}" /></label>
           <label>Output limit<input type="number" data-k="output" value="${m.output}" min="${MIN_OUTPUT}" /></label>
           <label><input type="checkbox" data-k="tools" ${m.tools ? "checked" : ""} /> Tools</label>
+          <label><input type="checkbox" data-k="vision" ${m.vision ? "checked" : ""} /> Vision</label>
+          <label><input type="checkbox" data-k="reasoning" ${m.reasoning ? "checked" : ""} /> Reasoning</label>
         </div>
       </div>`;
     div.querySelectorAll("[data-k]").forEach((el) => {
@@ -163,7 +169,12 @@ function buildConfig() {
     if (alias !== m.apiId) entry.modelID = m.apiId;
     if (m.displayName && m.displayName !== alias) entry.name = m.displayName;
     entry.limit = { context: m.context, output: m.output };
-    entry.capabilities = { tools: Boolean(m.tools), input: ["text"], output: ["text"] };
+    entry.capabilities = {
+      tools: Boolean(m.tools),
+      input: m.vision ? ["text", "image"] : ["text"],
+      output: ["text"],
+    };
+    if (m.reasoning) entry.capabilities.reasoning = { supported: true };
     const compat = {};
     if (reasoningField) compat.reasoningField = reasoningField;
     if (cacheFormat) compat.cacheFormat = cacheFormat;
@@ -195,7 +206,7 @@ function generate() {
   const figure = document.getElementById("outputFigure");
   const title = document.getElementById("outputTitle");
   if (!selected.length) {
-    $("output").innerHTML = highlightJson("// Select at least one model to generate the config.");
+    $("output").innerHTML = highlightJson("// Pick at least one model and the config shows up here.");
     figure.hidden = true;
   } else {
     const label = selected.length === 1 ? "1 model" : `${selected.length} models`;
@@ -205,10 +216,8 @@ function generate() {
     figure.hidden = false;
   }
   const keyLine =
-    authScheme === "none"
-      ? "# No API key needed. The endpoint runs without auth."
-      : `export ${fallbackEnv}="sk-..."`;
-  $("envOutput").textContent = `# Set the key used as {env:${fallbackEnv}} in the config:\n${keyLine}`;
+    authScheme === "none" ? "# No key needed. This endpoint skips auth." : `export ${fallbackEnv}="sk-..."`;
+  $("envOutput").textContent = `# The config reads the key from this variable:\n${keyLine}`;
   $("switchText").textContent = $("keyPlacement").checked ? "Use environment variable" : "No key in config";
   const modelWord = selected.length === 1 ? "model" : "models";
   $("statusInfo").textContent = `${providerId} / ${selected.length} ${modelWord} selected`;
@@ -216,7 +225,7 @@ function generate() {
 
 async function fetchModels() {
   const base = normBase($("baseURL").value);
-  if (!base) return setStatus($("fetchStatus"), "Enter a base URL first.", false);
+  if (!base) return setStatus($("fetchStatus"), "Type a base URL first.", false);
   const key = $("apiKey").value.trim();
   const scheme = $("authScheme").value;
   const headers = { Accept: "application/json" };
@@ -234,11 +243,11 @@ async function fetchModels() {
     if (e instanceof TypeError) {
       setStatus(
         $("fetchStatus"),
-        "Load blocked. The browser stopped the request. This is CORS, an ad blocker, or a down server. The manual paste box is open below.",
+        "The browser blocked that request. Usually that means CORS, an ad blocker, or the server being down. The paste box is open below.",
         false,
       );
     } else {
-      setStatus($("fetchStatus"), `Load failed: ${e.message}. Paste JSON manually below.`, false);
+      setStatus($("fetchStatus"), `That failed: ${e.message}. Paste the JSON below instead.`, false);
     }
     const fallback = $("manualFallback");
     fallback.open = true;
@@ -286,7 +295,7 @@ async function copyText(text) {
 $("curlBtn").addEventListener("click", async () => {
   try {
     await copyText(buildCurl());
-    setStatus($("fetchStatus"), "Curl command copied. Run it in a terminal, then paste the output above.");
+    setStatus($("fetchStatus"), "Curl command copied. Run it in a terminal, then paste the result above.");
   } catch (e) {
     setStatus($("fetchStatus"), `Copy failed: ${e.message}.`, false);
   }
@@ -370,7 +379,7 @@ $("selectNone").addEventListener("click", () => {
 $("copyBtn").addEventListener("click", async () => {
   try {
     await copyText($("output").textContent);
-    setStatus($("genStatus"), "Copied.");
+    setStatus($("genStatus"), "Copied to clipboard.");
   } catch (e) {
     setStatus($("genStatus"), `Copy failed: ${e.message}. Select the text manually.`, false);
   }
@@ -434,8 +443,8 @@ function askPassword(mode) {
   $("passwordTitle").textContent = mode === "new" ? "Protect the API key" : "Unlock the API key";
   $("passwordHint").textContent =
     mode === "new"
-      ? "Set a password. It encrypts the API key inside the file."
-      : "This file holds an encrypted API key. Type the password to decrypt it.";
+      ? "Pick a password. It locks the API key inside the file."
+      : "This file has an encrypted key inside. Type the password to open it.";
   $("passwordConfirmWrap").style.display = mode === "new" ? "" : "none";
   input.value = "";
   confirm.value = "";
@@ -455,18 +464,18 @@ function askPassword(mode) {
     const onOk = () => {
       if (mode === "new") {
         if (input.value.length < 8) {
-          error.textContent = "Use at least 8 characters.";
+          error.textContent = "Password needs at least 8 characters.";
           error.hidden = false;
           return;
         }
         if (input.value !== confirm.value) {
-          error.textContent = "The two passwords differ.";
+          error.textContent = "Those two passwords do not match.";
           error.hidden = false;
           return;
         }
       }
       if (!input.value) {
-        error.textContent = "Type a password.";
+        error.textContent = "Type a password first.";
         error.hidden = false;
         return;
       }

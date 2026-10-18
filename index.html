@@ -8,7 +8,7 @@
     <!-- Primary -->
     <meta
       name="description"
-      content="Generate an OpenCode V2 opencode.jsonc for any OpenAI compatible endpoint. Load the /models list, pick models, copy the config. Runs in the browser."
+      content="Pull the /models list from any OpenAI-style endpoint and walk away with a ready OpenCode V2 opencode.jsonc. Runs in your browser."
     />
     <meta
       name="keywords"
@@ -45,7 +45,7 @@
     <meta property="og:title" content="OpenCode Config Generator for OpenAI compatible endpoints" />
     <meta
       property="og:description"
-      content="Load the /models list from any OpenAI compatible endpoint and get a ready OpenCode V2 opencode.jsonc. Your key stays in the browser."
+      content="Pull the /models list from any OpenAI-style endpoint and walk away with a ready OpenCode V2 opencode.jsonc. Your key stays in the browser."
     />
     <meta property="og:image" content="https://trenbankai.dev/opencode-config/og-image.png" />
     <meta property="og:image:type" content="image/png" />
@@ -63,7 +63,7 @@
     <meta name="twitter:title" content="OpenCode Config Generator for OpenAI compatible endpoints" />
     <meta
       name="twitter:description"
-      content="Load the /models list from any OpenAI compatible endpoint and get a ready OpenCode V2 opencode.jsonc. Your key stays in the browser."
+      content="Pull the /models list from any OpenAI-style endpoint and walk away with a ready OpenCode V2 opencode.jsonc. Your key stays in the browser."
     />
     <meta name="twitter:image" content="https://trenbankai.dev/opencode-config/og-image.png" />
     <meta
@@ -89,7 +89,7 @@
             "@id": "https://trenbankai.dev/opencode-config/#app",
             "name": "opencode config generator",
             "url": "https://trenbankai.dev/opencode-config/",
-            "description": "Generate an OpenCode V2 opencode.jsonc for any OpenAI compatible endpoint. Load the /models list, pick models, copy the config.",
+            "description": "Pull the /models list from any OpenAI-style endpoint and walk away with a ready OpenCode V2 opencode.jsonc.",
             "applicationCategory": "DeveloperApplication",
             "applicationSubCategory": "Configuration tool",
             "operatingSystem": "Any operating system",
@@ -154,12 +154,13 @@
   <body>
     <header class="site-header">
       <h1>opencode config generator</h1>
-      <p>OpenAI compatible endpoint. Load models. Get config.</p>
+      <p>Works with any OpenAI-style API. Load the models, take the config.</p>
     </header>
     <main>
       <noscript>
         <p class="hint">
-          This page needs JavaScript. It calls the model list and builds the config in the browser.
+          This page needs JavaScript. It fetches the model list and builds the config right here in your
+          browser.
         </p>
       </noscript>
       <section class="panel">
@@ -167,7 +168,7 @@
         <div class="panel-body">
           <div class="grid">
             <label>
-              Provider ID. Use it as provider/model.
+              Provider ID. You will use it as provider/model.
               <input id="providerId" value="custom" spellcheck="false" />
             </label>
             <label>
@@ -179,7 +180,7 @@
               <input id="baseURL" value="http://127.0.0.1:1234/v1" spellcheck="false" />
             </label>
             <label>
-              API key. Used only to load models. Never saved.
+              API key. Only used to fetch the model list. Never stored.
               <input
                 id="apiKey"
                 type="password"
@@ -244,7 +245,7 @@
             <span id="fetchStatus" class="status" aria-live="polite"></span>
           </div>
           <details id="manualFallback">
-            <summary>Load blocked by CORS. Paste the models JSON manually.</summary>
+            <summary>The browser blocked the request. Paste the models JSON here instead.</summary>
             <div class="json-editor" id="manualEditor">
               <pre aria-hidden="true"><code id="manualHighlight"></code></pre>
               <textarea
@@ -283,7 +284,7 @@
             <button id="selectNone">Clear</button>
           </div>
           <div id="modelList" class="model-list">
-            <p class="hint">No models loaded. Load models or paste JSON above.</p>
+            <p class="hint">Nothing here yet. Load the models, or paste the JSON above.</p>
           </div>
         </div>
       </section>
@@ -292,8 +293,8 @@
         <div class="panel-title">Profiles</div>
         <div class="panel-body">
           <p class="hint">
-            Save every input and the model list to a file. Load it back later. A password encrypts the API key
-            inside the file. Without a key in the form, no password is needed.
+            Save everything to a file, inputs and model list included. A password locks the API key inside it.
+            Leave the key field empty and no password is needed.
           </p>
           <div class="grid">
             <label>
@@ -330,7 +331,7 @@
     <footer>
       <div class="footer-inner">
         <p>
-          This page runs in the browser. The key is sent only to the model list request. Schema:
+          This page runs in this browser tab. Your key only goes out with the model list request. Schema:
           https://opencode.ai/config.json (OpenCode V2).
         </p>
         <p class="credits">
@@ -353,12 +354,12 @@
     <dialog id="securityDialog" aria-labelledby="securityTitle">
       <div class="panel-title" id="securityTitle">Security note</div>
       <ul class="dialog-list">
-        <li>This page is static. It sends requests only to the base URL you type.</li>
-        <li>The API key stays in this browser tab. It is used for the model list request only.</li>
-        <li>The key is never saved, never logged, and never sent anywhere else.</li>
+        <li>This page is just static files. It only talks to the base URL you type.</li>
+        <li>Your key never leaves this tab. It only goes out with the model list request.</li>
+        <li>Nothing is saved, logged, or sent anywhere else.</li>
         <li>Close the tab when you finish on a shared computer.</li>
-        <li>The generated config uses an environment variable for the key. Keep it that way.</li>
-        <li>Made for personal use. Anyone can use it too.</li>
+        <li>The config points at an environment variable instead of the raw key. Keep it that way.</li>
+        <li>Built for personal use, free for anyone.</li>
       </ul>
       <label class="inline dialog-check">
         <input id="securityDismiss" type="checkbox" />
@@ -371,7 +372,7 @@
     <dialog id="passwordDialog" aria-labelledby="passwordTitle">
       <div class="panel-title" id="passwordTitle">Protect the API key</div>
       <div class="dialog-body">
-        <p class="hint" id="passwordHint">Set a password. It encrypts the API key inside the file.</p>
+        <p class="hint" id="passwordHint">Pick a password. It locks the API key inside the file.</p>
         <label>
           Password
           <input id="passwordInput" type="password" autocomplete="new-password" />

@@ -1,6 +1,6 @@
 # opencode config generator
 
-A static web page that builds an OpenCode V2 config for any OpenAI compatible endpoint.
+A small static page that builds an OpenCode V2 config for any OpenAI-style endpoint. No server, no build step. Open it, point it at your endpoint, and take the config.
 
 ## Run
 
@@ -13,10 +13,10 @@ Open http://127.0.0.1:8000/ . Use 127.0.0.1 or localhost. 0.0.0.0 is not a brows
 ## Steps
 
 1. Type the provider ID, the display name, and the base URL.
-2. Add the API key if the endpoint needs one. This step is optional.
-3. Press "Load models". The page calls GET {baseURL}/models in the browser.
-4. Pick the models, then set the limits and the tools option.
-5. Copy or download the opencode.jsonc file.
+2. Add the API key if your endpoint asks for one. Skip it otherwise.
+3. Press "Load models". The page calls GET {baseURL}/models from your browser.
+4. Pick the models you want, then set the limits, tools, vision, and reasoning.
+5. Copy the opencode.jsonc file or download it.
 
 The page also prints a shell export line for the API key.
 
@@ -24,7 +24,7 @@ The page also prints a shell export line for the API key.
 
 The request goes straight to your endpoint. If the endpoint sends no CORS headers, the browser blocks the response.
 
-In that case, open "Load blocked by CORS", paste the models JSON, and press "Parse pasted JSON". Get the JSON with:
+In that case, open the blocked-request box, paste the models JSON, and press "Parse pasted JSON". Get the JSON with:
 
 ```
 curl -H "Authorization: Bearer KEY" https://your-host/v1/models
@@ -32,13 +32,13 @@ curl -H "Authorization: Bearer KEY" https://your-host/v1/models
 
 ## Security
 
-The key stays in the browser tab and is used only for the /models request. The page never stores it and never sends it anywhere else.
+Your key never leaves the browser tab and is only used for the /models request. The page never stores it and never sends it anywhere else.
 
 The generated config references the key as an environment variable. The value stays in your shell.
 
 ## Profiles
 
-The Profiles panel saves every input and the model list to a `.opencode-profile.json` file. Loading the file fills the inputs back in.
+The Profiles panel saves everything to a `.opencode-profile.json` file, inputs and model list included. Loading the file fills the form back in.
 
 A password encrypts the API key inside the file with AES-GCM. The password never leaves the browser. Use at least 8 characters. A wrong password fails to decrypt, so the key stays safe.
 

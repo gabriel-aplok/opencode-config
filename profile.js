@@ -110,6 +110,8 @@ function sanitizeProfileModel(entry) {
     context: Number(entry.context) || 0,
     output: Number(entry.output) || 0,
     tools: Boolean(entry.tools),
+    vision: Boolean(entry.vision),
+    reasoning: Boolean(entry.reasoning),
     include: entry.include !== false,
   };
 }

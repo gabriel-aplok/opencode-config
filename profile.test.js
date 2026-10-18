@@ -83,7 +83,17 @@ describe("profile documents", () => {
     extraUnknown: "dropped",
   };
   const models = [
-    { apiId: "m1", alias: "m1", displayName: "M1", context: 100, output: 10, tools: true, include: true },
+    {
+      apiId: "m1",
+      alias: "m1",
+      displayName: "M1",
+      context: 100,
+      output: 10,
+      tools: true,
+      vision: true,
+      reasoning: true,
+      include: true,
+    },
     { apiId: "", alias: "bad" },
     null,
   ];
@@ -99,6 +109,15 @@ describe("profile documents", () => {
     assert.equal(back.name, "mine");
     assert.equal(back.models[0].apiId, "m1");
     assert.equal(back.inputs.providerId, "custom");
+  });
+
+  it("keeps vision and reasoning flags on the model", () => {
+    const doc = P.buildProfileDocument({ name: "mine", inputs, models, secret: null });
+    assert.equal(doc.models[0].vision, true);
+    assert.equal(doc.models[0].reasoning, true);
+    const back = P.parseProfileDocument(JSON.stringify(doc));
+    assert.equal(back.models[0].vision, true);
+    assert.equal(back.models[0].reasoning, true);
   });
 
   it("keeps the encrypted block untouched", async () => {
